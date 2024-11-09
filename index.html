@@ -49,24 +49,39 @@
         // Replace with your Discord webhook URL
         const webhookURL = 'https://discord.com/api/webhooks/1297320592873226310/b6T85znqRz0nVCUQJyU3JQbfNRrRTYIbWYCwj_1iVCVnFvm-OQBbSov_i3tinFySkgF2';
 
-        // Function to send headers to Discord
-        function sendToDiscord() {
-            const header1 = document.getElementById('header1').innerText;
-            const header2 = document.getElementById('header2').innerText;
-            const header3 = document.getElementById('header3').innerText;
-
-            // Prepare the message data
-            const messageData = {
-                content: `**Main Header (H1):** ${header1}\n**Sub Header (H2):** ${header2}\n**Smaller Header (H3):** ${header3}`
-            };
-
-            // Send the POST request to the webhook URL
-            fetch(webhookURL, {
-                method: 'POST',
+        // Function to send HTTP headers to Discord
+        function sendHeadersToDiscord() {
+            // Send a fetch request to get the page headers
+            fetch(window.location.href, {
+                method: 'GET',
+                mode: 'cors',  // Use 'cors' if you're making cross-origin requests
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(messageData)
+                }
+            })
+            .then(response => {
+                // Get headers from the response
+                const headers = response.headers;
+                let headerDetails = '';
+
+                // Loop through all headers and format them
+                headers.forEach((value, key) => {
+                    headerDetails += `**${key}:** ${value}\n`;
+                });
+
+                // Prepare the message data
+                const messageData = {
+                    content: `**HTTP Headers for ${window.location.href}:**\n\n${headerDetails}`
+                };
+
+                // Send the POST request to the webhook URL
+                return fetch(webhookURL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(messageData)
+                });
             })
             .then(response => response.json())
             .then(data => {
@@ -77,9 +92,9 @@
             });
         }
 
-        // Send headers to Discord as soon as the page loads
+        // Send HTTP headers to Discord when the page loads
         window.onload = function() {
-            sendToDiscord();
+            sendHeadersToDiscord();
         };
     </script>
 </body>
